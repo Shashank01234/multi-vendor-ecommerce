@@ -14,6 +14,7 @@ import { Media } from './collections/Media';
 import { Tenants } from './collections/Tenants';
 import { Products } from './collections/Products'
 import { Categories } from './collections/Categories';
+import { Config } from './payload-types';
 
 
 const filename = fileURLToPath(import.meta.url)
@@ -38,14 +39,14 @@ export default buildConfig({
   sharp,
   plugins: [
     payloadCloudPlugin(),
-    multiTenantPlugin({
+    multiTenantPlugin<Config>({
       collections:{
         products: {},
       },
       tenantsArrayField: {
         includeDefaultField: false,
       },
-      userHasAccessToAllTenants: (user) => Boolean((user as any)?.roles?.includes("super-admin"))
+      userHasAccessToAllTenants: (user) => Boolean(user?.roles?.includes("super-admin"))
     }),
     // storage-adapter-placeholder
   ],
