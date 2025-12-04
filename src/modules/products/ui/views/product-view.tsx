@@ -1,13 +1,12 @@
 "use client";
 
-// TODO: Add real ratings
-
 import Link from "next/link";
 import Image from "next/image";
-import { Fragment } from "react";
+import { toast } from "sonner";
 import dynamic from "next/dynamic";
-import { LinkIcon, StarIcon } from "lucide-react";
+import { Fragment, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { CopyCheckIcon, LinkIcon, StarIcon } from "lucide-react";
 
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
@@ -33,6 +32,8 @@ interface Props {
 export const ProductView = ({ productId, tenantSlug }: Props) => {
     const trpc = useTRPC();
     const { data } = useSuspenseQuery(trpc.products.getOne.queryOptions({ id: productId }))
+
+    const [isCopied, setIsCopied] = useState(false);
 
     return (
         <div className="px-4 lg:px-12 py-10">
@@ -75,23 +76,26 @@ export const ProductView = ({ productId, tenantSlug }: Props) => {
                             </div>
 
                             <div className="hidden lg:flex px-6 py-4 items-center justify-center">
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-2">
                                     <StarRating
-                                        rating={3}
+                                        rating={data.reviewRating}
                                         iconClassName="size-4"
                                     />
+                                    <p className="text-base font-medium">
+                                        {data.reviewCount} ratings
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="block lg:hidden px-6 py-4 items-center justify-center border-b">
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-2">
                                 <StarRating
-                                    rating={3}
+                                    rating={data.reviewRating}
                                     iconClassName="size-4"
                                 />
                                 <p className="text-base font-medium">
-                                    {5} ratings
+                                    {data.reviewCount} ratings
                                 </p>
                             </div>
                         </div>
@@ -119,10 +123,18 @@ export const ProductView = ({ productId, tenantSlug }: Props) => {
                                     <Button 
                                         className="size-12"
                                         variant="elevated"
-                                        onClick={() => {}}
-                                        disabled={false}
+                                        onClick={() => {
+                                            setIsCopied(true);
+                                            navigator.clipboard.writeText(window.location.href);
+                                            toast.success("URL Copied to clipboard");
+
+                                            setTimeout(() => {
+                                                setIsCopied(false);
+                                            }, 1000);
+                                        }}
+                                        disabled={isCopied}
                                     >
-                                        <LinkIcon />
+                                       {isCopied ? <CopyCheckIcon /> :  <LinkIcon /> }
                                     </Button>
                                 </div>
 
@@ -139,8 +151,8 @@ export const ProductView = ({ productId, tenantSlug }: Props) => {
                                     <h3 className="text-xl font-medium">Ratings</h3>
                                     <div className="flex items-center gap-x-1 font-medium">
                                         <StarIcon className="size-4 fill-black" />
-                                        <p>({3})</p>
-                                        <p className="text-base">{5} ratings</p>
+                                        <p>({data.reviewRating})</p>
+                                        <p className="text-base">{data.reviewCount} ratings</p>
                                     </div>
                                 </div>
                                 <div 
@@ -150,11 +162,11 @@ export const ProductView = ({ productId, tenantSlug }: Props) => {
                                         <Fragment key={stars}>
                                             <div className="font-medium">{stars} {stars === 1 ? "star":"stars"}</div>
                                             <Progress
-                                                value={50}
+                                                value={data.ratingDistribution[stars]}
                                                 className="h-[1lh]"
                                             />
                                             <div className="font-medium">
-                                                {50}%
+                                                {data.ratingDistribution[stars]}%
                                             </div>
                                         </Fragment>
                                     ))}
