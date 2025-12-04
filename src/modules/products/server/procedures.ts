@@ -23,6 +23,9 @@ export const productsRouter = createTRPCRouter({
                 collection: "products",
                 id: input.id,
                 depth: 2, //Loads the "product.image", "product.tenant" and "product.tenant.image"
+                select: {
+                    content: false,
+                },
             });
 
             let isPurchased = false;
@@ -196,12 +199,15 @@ export const productsRouter = createTRPCRouter({
             }
 
             const data = await ctx.db.find({
-                collection: 'products',
+                collection: "products",
                 depth: 2, // Pouplate "categories", "image", "tenant" & "tenant.image"
                 where,
                 sort,
                 page: input.cursor,
                 limit: input.limit,
+                select: {
+                    content: false,
+                },
             });
 
             const dataWithSummarizedReviews = await Promise.all(

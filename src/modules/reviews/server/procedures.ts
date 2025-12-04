@@ -13,7 +13,7 @@ export const reviewsRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
            
             const product = await ctx.db.findByID({
-                collection: 'products',
+                collection: "products",
                 id: input.productId,
             });
 
@@ -61,7 +61,7 @@ export const reviewsRouter = createTRPCRouter({
         )
         .mutation( async ({ input, ctx }) => {
             const product = await ctx.db.findByID({
-                collection: 'products',
+                collection: "products",
                 id: input.productId,
             });
 
