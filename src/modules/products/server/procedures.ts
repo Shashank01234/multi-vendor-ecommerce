@@ -120,7 +120,11 @@ export const productsRouter = createTRPCRouter({
             }),
         )
         .query(async ({ ctx, input }) => {
-            const where: Where = {};
+            const where: Where = {
+                isArchived: {
+                    not_equals: true,
+                },
+            };
 
             let sort: Sort = "-createdAt";
 
