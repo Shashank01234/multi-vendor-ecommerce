@@ -8,6 +8,7 @@ import { Media, Tenant } from "@/payload-types";
 import { baseProcedure, createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 import { CheckoutMetadata, ProductMetadata } from "../types";
+import { PLATFORM_FEE_PERCENTAGE } from "@/constant";
 
 export const checkoutRouter = createTRPCRouter({
     verify: protectedProcedure
@@ -130,7 +131,13 @@ export const checkoutRouter = createTRPCRouter({
                     }
                 }));
 
-            const totalAmount = products
+            const totalAmount = products.docs.reduce(
+                (acc, item) => acc + item.price * 100, 0
+            );
+
+            const platformFeeAmount = Math.round(
+                totalAmount * (PLATFORM_FEE_PERCENTAGE / 100)
+            );
 
             const checkout = await stripe.checkout.sessions.create({
                 customer_email: ctx.session.user.email,
@@ -143,7 +150,12 @@ export const checkoutRouter = createTRPCRouter({
                 },
                 metadata: {
                     userId: ctx.session.user.id,
-                } as CheckoutMetadata
+                } as CheckoutMetadata,
+                payment_intent_data: {
+                    application_fee_amount: platformFeeAmount,
+                },
+            },{
+                stripeAccount: tenant.stripeAccountId,
             });
 
             if(!checkout.url) {
