@@ -34,6 +34,7 @@ export async function POST(req: Request) {
 
     const permittedEvents: string[] = [
         "checkout.session.completed",
+        "account.updated"
     ];
 
     const payload = await getPayload({ config });
@@ -90,7 +91,7 @@ export async function POST(req: Request) {
                             },
                         });
                     }
-                    break;
+                break;
                 
                 case "account.updated":
                     data = event.data.object as Stripe.Account;
@@ -106,7 +107,7 @@ export async function POST(req: Request) {
                             stripeDetailsSubmitted: data.details_submitted,
                         },
                     });
-                    break;
+                break;
 
                 default:
                     throw new Error(`Unhandled event: ${event.type}`);
