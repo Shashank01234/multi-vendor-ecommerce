@@ -37,23 +37,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Categories, Products, Tags, Tenants, Orders, Reviews],
-  editor: lexicalEditor({
-    features: ({ defaultFeatures }) => [
-      ...defaultFeatures,
-      UploadFeature({
-          collections: {
-              media: {
-                  fields: [
-                      {
-                          name: "alt",
-                          type: "text",
-                      },
-                  ],
-              },
-          },
-      }),
-  ],
-  }),
+  editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
